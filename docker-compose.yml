@@ -1,0 +1,17 @@
+version: '3.8'
+
+services:
+  nutrition-api:
+    container_name: nutrition-api
+    image: ghcr.io/kuya-carlo/nutrition-api:v1.3
+    restart: unless-stopped
+    ports:
+      - 8000:8000
+    environment:
+      - SECRET_KEY=supersecretkey
+      # - INIT_DB=false
+    volumes:
+      - nutrition_db:/config/database.db:rw
+
+volumes:
+  nutrition_db:

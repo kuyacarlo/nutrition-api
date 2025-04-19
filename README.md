@@ -52,6 +52,25 @@ fastapi run --reload main.py
 # or fastapi run --reload main.py to run locally
 ```
 
+### Running it using Docker
+
+```sh
+docker run -d \
+  --name nutrition-api \
+  --restart always \
+  -p 8000:8000 \
+  -e SECRET_KEY=supersecretkey \
+  -v nutrition_db:/config/database.db:rw \
+  ghcr.io/kuya-carlo/nutrition-api:v1.3
+```
+
+### or Docker Compose
+
+```sh
+wget https://raw.githubusercontent.com/kuya-carlo/nutrition-api/refs/heads/master/docker-compose.yml
+docker compose up -d docker-compose.yml
+```
+
 ## Packages used
 
 - `alembic` - Database migrations
