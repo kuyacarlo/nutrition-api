@@ -16,17 +16,45 @@ jobs:
     steps:
     - uses: actions/checkout@v3
 
-    - name: Set up Python5
-    
+    - name: Set up Python
       uses: actions/setup-python@v4
       with:
-        python-version: '3.10'
+        python-version: '3.13'
 
     - name: Install dependencies
       run: |
         python -m pip install --upgrade pip
         pip install -r requirements.txt
         pip install requests packaging python-dotenv argon2-cffi
+
+    - name: Install Testing Dependencies
+      run: pip install ruff pytest pytest-cov
+
+    - name: Lint with Ruff
+      run: |
+        # Fails build if there are syntax errors or unresolved imports/issues
+        ruff check . --output-format=github
+
+    - name: Format Check with Ruff
+      run: |
+        # Fails build if Python files are not styled according to formatting standards
+        ruff format . --check
+
+    - name: Run unit tests
+      run: python -m unittest discover -v -s test
+
+    # - name: Run Tests & Check for Skipped Tests
+    #   run: |
+    #     # Run tests and output reports
+    #     pytest --cov=. --junitxml=pytest-report.xml
+
+    #     # CRITICAL: Fail if tests were skipped/bypassed.
+    #     # Helps detect AI-generated code that skipped its homework.
+    #     if grep -q -E 'skipped="[1-9]' pytest-report.xml; then
+    #       echo "❌ ERROR: One or more Python tests were skipped!"
+    #       grep -E -o 'skipped="[0-9]+"' pytest-report.xml
+    #       exit 1
+    #     fi
 
     - name: Run FastAPI app and tests
       run: |
@@ -45,7 +73,7 @@ jobs:
         done
 
         # Run tests
-        python test/test_unittest.py 
+        python test/test_unittest.py
 
         # Kill the server
         kill $SERVER_PID
