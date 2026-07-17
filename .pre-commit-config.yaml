@@ -1,0 +1,58 @@
+# Base pre-commit configuration for generic files
+# Suitable for any repository to ensure basic hygiene.
+
+repos:
+  - repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.6.0
+    hooks:
+      - id: trailing-whitespace
+        description: Trims trailing whitespace from text files.
+      - id: end-of-file-fixer
+        description: Ensures files end with a newline.
+      - id: check-yaml
+        description: Validates YAML syntax.
+      - id: check-toml
+        description: Validates TOML syntax.
+      - id: check-json
+        description: Validates JSON syntax.
+      - id: check-added-large-files
+        description: Prevents giant files (>500KB) from being committed.
+        args: ['--maxkb=500']
+
+  - repo: https://github.com/Yelp/detect-secrets
+    rev: v1.5.0
+    hooks:
+      - id: detect-secrets
+        args: ["--baseline", ".secrets.baseline", "scan"]
+        exclude: (migrations/|tests/|.*\.lock|pnpm-lock\.yaml|package-lock\.json|\.specify/.*)$
+        # exclude migrations and tests: too messy to add granular exclusions
+        # and lockfiles: file too large to work on
+
+  # Ruff: Blazing fast Python linter and formatter (replaces Black, Flake8, isort)
+  - repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.4.4
+    hooks:
+      # Run the linter and auto-fix fixable issues
+      - id: ruff
+        args: [ --fix ]
+      # Run the formatter to enforce consistent styling
+      - id: ruff-format
+
+  - repo: https://github.com/allganize/ty-pre-commit
+    rev: v0.0.25
+    hooks:
+      - id: ty-check
+        args: [--project=backend]
+        language: system
+        files: ^backend
+  # - repo: https://github.com/pypa/pip-audit
+  #   rev: v2.7.3
+  #   hooks:
+  #     - id: pip-audit
+  #       args: [ '--local' ] # Security stuff, find a way for this to not yell. for now this goes to actions/
+
+  # - repo: https://github.com/jorisroovers/gitlint
+  #   rev: v0.19.1
+  #   hooks:
+  #     - id: gitlint
+  #       stages: [commit-msg]
