@@ -18,7 +18,7 @@ WORKDIR /app
 COPY . .
 
 RUN apk add --no-cache --upgrade curl && \
-    pip3 install --no-cache-dir argon2-cffi -r requirements.txt 
+    pip3 install --no-cache-dir argon2-cffi -r requirements.txt
 
 EXPOSE 8000
 

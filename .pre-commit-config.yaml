@@ -51,8 +51,8 @@ repos:
   #     - id: pip-audit
   #       args: [ '--local' ] # Security stuff, find a way for this to not yell. for now this goes to actions/
 
-  # - repo: https://github.com/jorisroovers/gitlint
-  #   rev: v0.19.1
-  #   hooks:
-  #     - id: gitlint
-  #       stages: [commit-msg]
+  - repo: https://github.com/jorisroovers/gitlint
+    rev: v0.19.1
+    hooks:
+      - id: gitlint
+        stages: [commit-msg]
