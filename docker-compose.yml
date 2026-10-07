@@ -9,9 +9,11 @@ services:
       - 8000:8000
     environment:
       - SECRET_KEY=supersecretkey
-      # - INIT_DB=false
+      - ALGORITHM=HS256
+      - DATABASE_URL=sqlite:////data/database.db
+      - ALEMBIC_DB_URL=sqlite:////data/database.db
     volumes:
-      - nutrition_db:/config/database.db:rw
+      - nutrition_db:/data:rw
 
 volumes:
   nutrition_db:

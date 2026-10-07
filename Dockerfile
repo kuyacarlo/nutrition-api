@@ -7,7 +7,7 @@ LABEL Author=kuya-carlo \
 
 ARG SECRET_KEY
 
-ENV DB_URL="sqlite:///database.db" \
+ENV DATABASE_URL="sqlite:///database.db" \
     ALEMBIC_DB_URL="sqlite:///database.db" \
     SECRET_KEY=${SECRET_KEY} \
     ALGORITHM="HS256" \

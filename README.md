@@ -1,86 +1,76 @@
+# Nutrition API
 
+Stable FastAPI microservice for nutritional food records, user management, JWT authentication, and generated OpenAPI docs. This repository is treated as a stable/showcase API, not an actively evolving product.
 
-## Table of Contents
+## What is included
 
-- [Table of Contents](#table-of-contents)
-- [Introduction](#intro)
-- [Usage](#usage)
-  - [Running it natively](#running-it-natively)
-  - [Running it in a Virtual Environment](#running-it-in-a-virtual-environment)
-- [Packages Used](#packages-used)
-- [Contributors](#contributors)
+- FastAPI app in `main.py` with routers under `server/`
+- SQLite-by-default persistence through SQLModel
+- Alembic migration wiring
+- Dockerfile and `docker-compose.yml` for local container runs
+- API smoke/integration tests in `test/test_unittest.py`
 
-## Intro
+## Configuration
 
-Nutrition API is an API that allows clients to gather nutritional information of food items.
+| Variable | Default | Purpose |
+| --- | --- | --- |
+| `SECRET_KEY` | unset | Required for JWT signing. Do not use the example value outside local tests. |
+| `ALGORITHM` | unset | JWT algorithm, normally `HS256`. |
+| `DATABASE_URL` | `sqlite:///database.db` | Runtime SQLAlchemy/SQLModel database URL. |
+| `ALEMBIC_DB_URL` | `sqlite:///./database.db` | Alembic migration database URL. |
+| `baseUrl` | `http://127.0.0.1:8000/` | Test target URL used by `test/test_unittest.py`. |
 
-This document describes API as it is right now, but it is not final. The API is still under development and may change in the future.
-
-Please refer to the documentation for the latest updates.
-
-The API is designed to be RESTful and follows standard conventions for HTTP methods and status codes. Each endpoint is documented with its purpose, request parameters, and response formats.
-
-The API supports authentication and authorization mechanisms to ensure secure access to user data.
-
-## Usage
-
-### Running it natively
+## Run locally
 
 ```sh
-# Install requirements
+python -m venv .venv
+source .venv/bin/activate
 pip install -r requirements.txt
-
-# Start the server
-fastapi run --reload main.py
-# or fastapi run --reload main.py to run locally
+export SECRET_KEY=supersecretkey ALGORITHM=HS256
+uvicorn main:app --host 127.0.0.1 --port 8000
 ```
 
-### Running it in a Virtual Environment
+Open `http://127.0.0.1:8000/docs` for Swagger UI.
+
+## Run with Docker
 
 ```sh
-# Create a virtual environment
-python -m venv venv/
-
-# Use the virtual environment you just created
-source venv/bin/activate
-
-# Install requirements
-pip install -r requirements.txt
-
-# Start the server
-fastapi run --reload main.py
-# or fastapi run --reload main.py to run locally
-```
-
-### Running it using Docker
-
-```sh
-docker run -d \
-  --name nutrition-api \
-  --restart always \
+docker build -t nutrition-api:local .
+docker run --rm \
   -p 8000:8000 \
   -e SECRET_KEY=supersecretkey \
-  -v nutrition_db:/config/database.db:rw \
-  ghcr.io/kuya-carlo/nutrition-api:v1.3
+  -e ALGORITHM=HS256 \
+  -e DATABASE_URL=sqlite:///database.db \
+  -e ALEMBIC_DB_URL=sqlite:///database.db \
+  nutrition-api:local
 ```
 
-### or Docker Compose
+Or use Compose for the published image:
 
 ```sh
-wget https://raw.githubusercontent.com/kuya-carlo/nutrition-api/refs/heads/master/docker-compose.yml
-docker compose up -d docker-compose.yml
+docker compose up -d
 ```
 
-## Packages used
+## Safe verification
 
-- `alembic` - Database migrations
-- `fastapi[standard]` - API itself
-- `python-jose` - Authentication and Authorization with JWT and Bearer tokens
-- `python-dotenv` - Environment variables
-- `uuid` - UUID Generation
-- `passlib[argon2]` - argon2id encryptor and decryptor
-- `sqlmodel` - SQL-related things
+The test suite expects a running local API. Start the server in one terminal, then run:
 
-### Contributors
+```sh
+SECRET_KEY=supersecretkey ALGORITHM=HS256 baseUrl=http://127.0.0.1:8000 python test/test_unittest.py
+```
 
-- kuya-carlo
+A lower-blast-radius smoke check that does not keep a service running is:
+
+```sh
+SECRET_KEY=supersecretkey ALGORITHM=HS256 python -m compileall main.py server test
+```
+
+## API notes
+
+- `GET /api/ping` returns `"pong"`.
+- Food, user, and auth routes are mounted under `/api`.
+- The `/api/migrate` admin route runs Alembic migrations against `ALEMBIC_DB_URL`; use it only in a controlled local environment.
+
+## License
+
+[MIT](LICENSE)
